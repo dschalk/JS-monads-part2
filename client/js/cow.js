@@ -119,10 +119,9 @@ const steps = h('pre', {style: {color: '#AFEEEE' }},
 
 const dice = h('pre', {style: {color: '#AFEEEE' }}, 
 `  function updateNums(e) {
-    mM2.ret([e.target.value, e.target.textContent]) 
-    .bnd(() => mM3)
-    .bnd(push,mM2.x[1])
-    .bnd(() => {mM1.x[mM2.x[0]] = ""; return mM5;})
+    mM3
+    .bnd(push,e.target.textContent)
+    .bnd(() => {mM1.x[e.target.value] = ""; return ret('temp');})
     .bnd(update)
     updateCalc();
   }
@@ -134,7 +133,7 @@ const dice = h('pre', {style: {color: '#AFEEEE' }},
 
   function updateCalc() {  
     if ((mM8.x === 0) || (mM3.x.length !== 2)) {return};
-    mM19.bnd(() => (
+    ret('temp').bnd(() => (
     (mMI2.block()
       .bnd(() => mM13
       .ret(mM13.x + 1)
@@ -145,23 +144,23 @@ const dice = h('pre', {style: {color: '#AFEEEE' }},
       .bnd(() => send())) ),  
     (mM3
       .bnd(toFloat)
-      .bnd(() => mM7
-      .fmap(() => {return calc(mM3.x[0], mM8.x, mM3.x[1])})
-      .bnd(() => mM1.bnd(push, mM7.x)
+      .bnd((x => mM3.ret(x)
+      .bnd(() => mM7      
+      .ret(calc(mM3.x[0], mM8.x, mM3.x[1]))
+      .bnd(x => mM1.bnd(push, x)
       .bnd(clean)
-      .bnd(next, (mM7.x == 18), mMI4)
-      .bnd(next, (mM7.x == 20), mMI2) )
-      .bnd(displayOff, mM1.x.length)
+      .bnd(x => mM1.ret(x)
+      .bnd(next, (mM7.x == 18), mMZ4)
+      .bnd(next, (mM7.x == 20), mMZ2) 
+      .bnd(displayOff, x.length)
       .bnd(() => mM3
       .ret([])
       .bnd(() => mM4
       .ret(0).bnd(mM8.ret)
       .bnd(() => mM5.ret('Done')
-      .bnd(update)   )))) )
-    )) 
-  }
-  
+      .bnd(update)   )))))))) )
 );  
+
 
   var next = function next(x,mon,bool,mon2) {  
     if (bool) {
@@ -190,7 +189,7 @@ const nex = h('pre', {style: {color: '#AFEEEE' }},
 
 
 
-export default {monad, steps, next, dice, send};
+export default {monad, steps, nex, dice, send};
 
 
 

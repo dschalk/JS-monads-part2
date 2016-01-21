@@ -16,7 +16,7 @@ var Monad = function Monad(z) {
       args[_key - 1] = arguments[_key];
     }
 
-    return func.apply(undefined, [_this].concat(args));
+    return func.apply(undefined, [_this.x].concat(args));
   };
 
   this.ret = function (a) {
@@ -45,53 +45,43 @@ var MonadIter = function MonadIter(z, g) {
 
   this.x = z;
   this.id = g;
-  this.flag = false;
   this.p = [];
-
   this.block = function () {
-    _this2.flag = true;
+    _this2.x = true;
     return _this2;
   };
-
   this.release = function () {
+    _this2.x = false;
     var self = _this2;
     var p = _this2.p;
-
     if (p[1] === 'bnd') {
       p[2].apply(p, [self.x, self].concat(_toConsumableArray(p[3])));
-      self.flag = false;
       return self;
     }
-
     if (p[1] === 'ret') {
       self.x = p[2];
-      self.flag = false;
       return self;
     }
-
     if (p[1] === 'fmap') {
       p[3].ret(p[2].apply(p, [p[3].x].concat(_toConsumableArray(p[4]))));
-      self.flag = false;
       return p[3];
     }
   };
-
   this.bnd = function (func) {
     for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
       args[_key3 - 1] = arguments[_key3];
     }
 
     var self = _this2;
-    if (self.flag === false) {
-      func.apply(undefined, [self].concat(args));
+    if (self.x === false) {
+      func.apply(undefined, [self.x].concat(args));
       return self;
     }
-    if (self.flag === true) {
+    if (self.x === true) {
       self.p = [self.id, 'bnd', func, args];
       return self;
     }
   };
-
   this.fmap = function (f) {
     for (var _len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
       args[_key4 - 2] = arguments[_key4];
@@ -100,44 +90,27 @@ var MonadIter = function MonadIter(z, g) {
     var mon = arguments.length <= 1 || arguments[1] === undefined ? _this2 : arguments[1];
 
     var self = _this2;
-    if (self.flag === false) {
+    if (self.x === false) {
       mon.ret(f.apply(undefined, [mon.x].concat(args)));
       return mon;
     }
-    if (self.flag === true) {
+    if (self.x === true) {
       self.p = [self.id, 'fmap', f, mon, args];
       return self;
     }
   };
-
   this.ret = function (a) {
     var self = _this2;
-    if (self.flag === false) {
+    if (self.x === false) {
       self.x = a;
     }
-    if (self.flag === true) {
+    if (self.x === true) {
       self.p = [self.id, 'ret', a];
       return self;
     }
-    _this2.flag = false;
+    _this2.x = false;
     return _this2;
   };
-};
-
-var pure = function pure(mon) {
-  if (typeof mon.x.x == 'undefined') {
-    return mon;
-  }
-  mon.ret(mon.x.x);
-  return mon;
-};
-
-var bnd = function bnd(f, mon) {
-  for (var _len5 = arguments.length, args = Array(_len5 > 2 ? _len5 - 2 : 0), _key5 = 2; _key5 < _len5; _key5++) {
-    args[_key5 - 2] = arguments[_key5];
-  }
-
-  return f.apply(undefined, [mon].concat(args));
 };
 
 var ret = function ret(v) {
@@ -145,27 +118,15 @@ var ret = function ret(v) {
   return mon;
 }
 
-var Mcube = function(v) {
+var cube = function(v) {
   var mon = new Monad(v*v*v);
   return mon;
 }
 
-var Madd = function(a,b) {
+var add = function(a,b) {
   var mon = new Monad(a+b);
   return mon;
 }
-
-var fmap = function fmap(f, mon) {
-  for (var _len6 = arguments.length, args = Array(_len6 > 2 ? _len6 - 2 : 0), _key6 = 2; _key6 < _len6; _key6++) {
-    args[_key6 - 2] = arguments[_key6];
-  }
-
-  var v = mon.x;
-  mon.ret(f.apply(undefined, [v].concat(args)));
-  return mon;
-};
-
-var Val = 0;
 
 var M = function M(a) {
   return new Monad(a);
@@ -174,14 +135,14 @@ var M = function M(a) {
 var mM1 = M([]);
 var mM2 = M(0);
 var mM3 = M(0);
-var mM4 = M(0);
+var mM4 = M({});
 var mM5 = M(0);
 var mM6 = M(0);
 var mM7 = M(0);
 var mM8 = M(0);
 var mM9 = M(0);
 var mM10 = M(0);
-var mM11 = M(0);
+var mM11 = M([]);
 var mM12 = M(0);
 var mM13 = M(0);
 var mM14 = M(0);
@@ -190,22 +151,32 @@ var mM16 = M(0);
 var mM17 = M(0);
 var mM18 = M(0);
 var mM19 = M(0);
+var mMscbd = M([]);
+var mMmessages = M([]);
+var mMscoreboard = M([]);
+var mMmsg = M([]);
+var mMgoals = M([]);
+var mMnbrs = M([]);
+var mMnumbers = M([]);
 
 var MI = function MI(a, b) {
   return new MonadIter(a, b);
 };
 
-var mMI1 = MI(0, 'mMI1');
-var mMI2 = MI(0, 'mMI2');
-var mMI3 = MI(0, 'mMI3');
-var mMI4 = MI(0, 'mMI4');
-var mMI5 = MI(0, 'mMI5');
-var mMI6 = MI(0, 'mMI6');
+var mMZ1 = MI(false, 'mMZ1');
+var mMZ2 = MI(false, 'mMZ2');
+var mMZ3 = MI(false, 'mMZ3');
+var mMZ4 = MI(false, 'mMZ4');
+var mMZ5 = MI(false, 'mMZ5');
+var mMZ6 = MI(false, 'mMZ6');
+var mMZ7 = MI(false, 'mMZ7');
+var mMZ8 = MI(false, 'mMZ8');
+var mMZ9 = MI(false, 'mMZ9');
 
-var toNums = function toNums(mon) {
-  mon.x = mon.x.map(x => parseFloat(x));
+var toNums = function toNums(x) {
+  let y = x.map(x => parseFloat(x));
   return mon; 
-}
+};
 
 var calc = function calc(a,op,b) { 
   var result;
@@ -223,73 +194,79 @@ var calc = function calc(a,op,b) {
       default : 'Major Malfunction in calc.';
   }
   return result;
-}
+};
 
-var push = function push(mon,v) {
-    var a = mon.x;
-    a.push(v);
-    mon.ret(a);
-    return mon;
-}
-
-var displayOff = function displayOff(mon,a) {
-    document.getElementById(a).style.display = 'none';
-    return mon;
-}
-
-var displayInline = function displayInline(mon,a) {
-    document.getElementById(a).style.display = 'inline';
-    return mon;
-}
-
-var displayBlock = function displayBlock(mon,a) {
-    document.getElementById(a).style.display = 'block';
-    return mon;
-}
-
-var popPush = function popPush(mon,a) {
-  mon.x.pop;
-  mon.x.push(a);
-  return mon;
-}
-
-var blank = function blank(v,mon,i) {
-  mon.x[i] = "";
-  return mon;
-}
-
-var clean = function clean(mon) {
-  mon.x = mon.x.filter(x => (x !== "" && x !== undefined));
-  return mon;
-}
-  
-var toFloat = function toFloat(mon) {
-  var newx = mon.x.map(function (a) {
-    return parseFloat(a);
-  });
-  mon.ret(newx);
+var pause = function(x,t,mon2) {
+  mon2.block();
+  let time = t*1000;
+  setTimeout( function() {
+    mon2.release();
+  },time );
   return mon;
 };
 
-var splice = function splice(mon,i) {
-  mon.x.splice(i,1);
+var push = function push(x,v) {
+  x.push(v);
+  let mon = new Monad(x);
+  return mon;
+};
+
+var displayOff = function displayOff(x,a) {
+    document.getElementById(a).style.display = 'none';
+    let mon = new Monad(x);
+    return mon;
+};
+
+var displayInline = function displayInline(x,a) {
+  console.log('x, a ', x, a);
+    document.getElementById(a).style.display = 'inline';
+    let mon = new Monad(x);
+    return mon;
+};
+
+var displayBlock = function displayBlock(x,a) {
+    document.getElementById(a).style.display = 'block';
+    let mon = new Monad(x);
+    return mon;
+};
+
+var clean = function clean(x) {
+    console.log('x ', x);
+    let cleanX = x.filter(x => (x !== "" && x !== undefined));
+    console.log('cleanX ', cleanX);
+    let mon = new Monad(cleanX);
+    return mon;
+};
+  
+var toFloat = function toFloat(x) {
+  var newx = x.map(function (a) {
+    return parseFloat(a);
+  });
+  let mon = new Monad(newx);
+  return mon;
+};
+
+var splice = function splice(x,i) {
+  let ar = x.splice(i,1);
+  let mon = new Monad(ar);
   return mon;
 }
 
-var next = function next(mon,bool,mon2) {
-  if (bool) {
+var next = function next(x,condition,mon2) {
+  if (condition) {
     mon2.release();
   }
+  let mon = new Monad(x);
   return mon
 }
 
-var doub = function doub(mon) {
-  mon.ret(mon.x + mon.x);
+var doub = function doub(v) {
+  let mon = new Monad(v + v);
   return mon;
 };
 
-var square = function square(mon) {
-  mon.ret(mon.x * mon.x);
+var square = function square(v) {
+  let mon = new Monad(v * v);
   return mon;
 };
 
@@ -298,40 +275,9 @@ var tripple = function tripple(mon) {
   return mon;
 };
 
-var cube =  function cube(mon) {
-  mon.ret(mon.x * mon.x * mon.x);
+var mult = function mult(x, y) {
+  let mon = new Monad(x * y);
   return mon;
-};
-
-var add = function add(mon, y) {
-  mon.ret(mon.x + y);
-  return mon;
-};
-
-var mult = function mult(mon, y) {
-  mon.ret(mon.x * y);
-  return mon;
-};
-
-var lg = '';
-
-var log = function log(mon, y) {
-  console.log(y);
-  return mon;
-};
-
-var fnc = function fnc(a, b) {
-  return a.b;
-};
-
-var branch = function branch(mon, a) {
-  return mon;
-};
-
-var branchT = function branchT(mon, a) {
-  setTimeout(function () {
-    return mon;
-  }, 500);
 };
 
 var rand = function rand(a, b) {
@@ -387,32 +333,6 @@ var jackpot = function jackpot(mon) {
   return mon;
 };
 
-var bench = function bench(mon) {
-  var self = undefined;
-  var k = 0;
-  var j = 0;
-  var d1 = new Date();
-  for (k; k < 1000000; k++) {
-    mM1 = new Monad(k);
-  }
-  mon.ret(new Date() - d1);
-  return mon;
-};
-
-var bench2 = function bench2() {
-  var self = undefined;
-  var k = 0;
-  var j = 0;
-  var d1 = new Date();
-  for (k; k < 1000000; k++) {
-    mM2.ret(k);
-  }
-  resBench2 = new Date() - d1;
-  setTimeout(function () {
-    self.forceUpdate();
-  }, 12);
-};
-
 var cu = function cu(x) {
   return x * x * x;
 };
@@ -444,21 +364,10 @@ var release = function release(mon, mon2) {
   return mon;
 };
 
-var test5 = function test5(m) {
-  var x = m.x;
-  m.ret(x + 3).bnd(add, 1).bnd(mMS2.ret).bnd(add, 1).bnd(doub);
-};
-
-var test6 = function test6() {
-  mMS1.ret(3).fmap(ad, mMS2, mMS1.x).fmap(du).fmap(ad, mM1, mMS1.x).fmap(cu).fmap(id, mMS3).bnd(add, mMS2.x + 1000);
-};
-
 var delay = function delay(mon) {
   return new Promise(function (resolve, reject) {
     setTimeout(resolve, 2000);
   });
 };
 
-var increment = function increment() {
-  VAL = VAL + 1;
-};
+
