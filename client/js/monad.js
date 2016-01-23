@@ -4,12 +4,14 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var Monad = function Monad(z) {
+var Monad = function Monad(z,g) {
   var _this = this;
 
   _classCallCheck(this, Monad);
 
   this.x = z;
+  if (arguments.length === 1) {this.id = 'anonymous'}
+  else {this.id = g}
 
   this.bnd = function (func) {
     for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -20,8 +22,10 @@ var Monad = function Monad(z) {
   };
 
   this.ret = function (a) {
-    _this.x = a;
-    return _this;
+    var str = _this.id
+    if (str === 'anonymous') {return new Monad(a,'anonymous')};
+    eval(str + '= new Monad(a,' + "str" + ')'); 
+    return window[_this.id];
   };
 
   this.fmap = function (f) {
@@ -45,71 +49,35 @@ var MonadIter = function MonadIter(z, g) {
 
   this.x = z;
   this.id = g;
+  this.flag = false;
   this.p = [];
+
   this.block = function () {
-    _this2.x = true;
+    _this2.flag = true;
     return _this2;
   };
+
   this.release = function () {
-    _this2.x = false;
     var self = _this2;
     var p = _this2.p;
-    if (p[1] === 'bnd') {
-      p[2].apply(p, [self.x, self].concat(_toConsumableArray(p[3])));
-      return self;
-    }
-    if (p[1] === 'ret') {
-      self.x = p[2];
-      return self;
-    }
-    if (p[1] === 'fmap') {
-      p[3].ret(p[2].apply(p, [p[3].x].concat(_toConsumableArray(p[4]))));
-      return p[3];
-    }
+    p[1].apply(p, [self.x].concat(_toConsumableArray(p[2])));
+    self.flag = false;
+    return self;
   };
+
   this.bnd = function (func) {
     for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
       args[_key3 - 1] = arguments[_key3];
     }
-
     var self = _this2;
-    if (self.x === false) {
+    if (self.flag === false) {
       func.apply(undefined, [self.x].concat(args));
       return self;
     }
-    if (self.x === true) {
-      self.p = [self.id, 'bnd', func, args];
+    if (self.flag === true) {
+      self.p = [self.id, func, args];
       return self;
     }
-  };
-  this.fmap = function (f) {
-    for (var _len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
-      args[_key4 - 2] = arguments[_key4];
-    }
-
-    var mon = arguments.length <= 1 || arguments[1] === undefined ? _this2 : arguments[1];
-
-    var self = _this2;
-    if (self.x === false) {
-      mon.ret(f.apply(undefined, [mon.x].concat(args)));
-      return mon;
-    }
-    if (self.x === true) {
-      self.p = [self.id, 'fmap', f, mon, args];
-      return self;
-    }
-  };
-  this.ret = function (a) {
-    var self = _this2;
-    if (self.x === false) {
-      self.x = a;
-    }
-    if (self.x === true) {
-      self.p = [self.id, 'ret', a];
-      return self;
-    }
-    _this2.x = false;
-    return _this2;
   };
 };
 
@@ -128,29 +96,30 @@ var add = function(a,b) {
   return mon;
 }
 
-var M = function M(a) {
-  return new Monad(a);
+var M = function M(a,b) {
+  return new Monad(a,b);
 };
 
-var mM1 = M([]);
-var mM2 = M(0);
-var mM3 = M(0);
-var mM4 = M({});
-var mM5 = M(0);
-var mM6 = M(0);
-var mM7 = M(0);
-var mM8 = M(0);
-var mM9 = M(0);
-var mM10 = M(0);
-var mM11 = M([]);
-var mM12 = M(0);
-var mM13 = M(0);
-var mM14 = M(0);
-var mM15 = M(0);
-var mM16 = M(0);
-var mM17 = M(0);
-var mM18 = M(0);
-var mM19 = M(0);
+
+var mM1 = M([],'mM1');
+var mM2 = M(0,'mM2');
+var mM3 = M(0,'mM3');
+var mM4 = M([],'mM4');
+var mM5 = M(0,'mM5');
+var mM6 = M(0,'mM6');
+var mM7 = M(0,'mM7');
+var mM8 = M(0,'mM8');
+var mM9 = M(0,'mM9');
+var mM10 = M(0,'mM10');
+var mM11 = M([],'mM11');
+var mM12 = M(0,'mM12');
+var mM13 = M(0,'mM13');
+var mM14 = M(0,'mM14');
+var mM15 = M(0,'mM15');
+var mM16 = M(0,'mM16');
+var mM17 = M(0,'mM17');
+var mM18 = M(0,'mM18');
+var mM19 = M(0,'mM19');
 var mMscbd = M([]);
 var mMmessages = M([]);
 var mMscoreboard = M([]);

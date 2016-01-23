@@ -40,7 +40,7 @@ var oldVnode = document.getElementById('placeholder');
 
 function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17, m18, m19, mI1, mI2) { 
     return h('div',{style: style3}, 
-    [  h('div',{style: { width: '65%', textAlign: 'left', marginLeft: 40, marginRight: '17%', fontSize: '20px'}}, 
+    [  h('div',{style: { width: '65%', textAlign: 'left', marginLeft: 40, marginRight: '17%', fontSize: '22px'}}, 
     [ h('h1', {style: {textAlign: 'center', color: '#ffba66'}}, 'JS-monads-part2'),
       h('span', 'This is the second page in the new Javascript Monads series. Detailed explanations of the basic monad constructor, "Monad" and its methods and the arguments they take can be found at '),
       h('a', {props: {href: 'http://schalk.net:3000' },  style: {color: '#EECCFF'}},'Javascript Monads Part 1 '), 
@@ -87,11 +87,8 @@ function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, 
       h('p', 'The root of the computation tree is an anonymous monad. mM3 holds the numbers and mM8 holds the operator involved in the computation, whose result is stored in mM7. ' ),
       cow.dice,
       h('p', 'When numbers are clicked, they get pushed into mM3.x, an initially empty array. When an operator is clicked, it replaces "0" as the value of mM8. So when mM3.x.length === 2 and mM8.x !== 0, it is time for the computation to go forward. '  ),
-      h('p', 'mM1 holdd the initial dice roll and the subsequent arrays of available numbers. When calc returns "20", the player get an additional point and a new roll of the dice. If calc returns 18, you get three points. '   ), 
-      cow.nex,
-      h('span', 'And here is "send": '  ),
-      cow.send,
-      h('p', 'Using "bnd" with "next", any monad can release any block. A chain in the tree (sorry about the mixed metaphore) can branch into 2, 3, or any number of chains you decide to place in a tupple. You wouldn\'t be required to do it, but it seems that any application could be organized into one tree. '  ),
+      h('p', 'mM1 holdd the initial dice roll and the subsequent arrays of available numbers. When calc returns "20", the player get an additional point and a new roll of the dice. If calc returns 18, the player get three points. '   ), 
+      h('p', 'Using "bnd" with "next", any monad can release any block. A chain in the tree (sorry about the mixed metaphore) can branch into 2, 3, or any number of chains you decide to place in a tupple. It seems that any application could be organized into a single tree. '  ),
       h('span', 'The code for this along with some other demonstrations can be found at ' ),
       h('a', {props: {href: 'https://github.com/dschalk?tab=repositories'}, style: {color: '#EECCFF'}}, 'github.com/dschalk/' ),
       h('div', {style: {height: '300px'}} ),
@@ -141,7 +138,7 @@ function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, 
           h('span', 'mM14.x: '),
           h('span', {style: styleM}, '  ' + m14),
           h('br'),
-         /* h('span', 'mM15.x: '),
+          h('span', 'mM15.x: '),
           h('span', {style: styleM}, '  ' + m15),
           h('br'),
           h('span', 'mM16.x: '),
@@ -162,7 +159,7 @@ function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, 
           h('span', 'mMZ2.x: '),
           h('span', {style: styleMI}, '  ' + mI2),
           h('br'),
-          h('br'),*/
+          h('br'),
           h('br'),
           h('button', {on: { mouseenter: updateRe, mouseleave: updateRl, click: updateR }, style: styleR},
                      `RESET`   ),
@@ -247,13 +244,6 @@ function updateLogin(e) {
 }
 
 function updateR(event) {
-  mM2.ret(0).bnd(mM3.ret).bnd(mM4.ret).bnd(mM5.ret)
-  .bnd(mM6.ret).bnd(mM7.ret).bnd(mM8.ret).bnd(mM9.ret).bnd(mM10.ret).bnd(mM11.ret).bnd(mM12.ret).bnd(mM13.ret).bnd(mM15.ret).bnd(mM16.ret).bnd(mM17.ret).bnd(mM18.ret).bnd(mM19.ret).bnd(mMZ1.ret).bnd(mMZ2.ret).bnd(() => mM1.ret([])).bnd(() => mM14.ret('Score: ' + mM13.x));
-  oldVnode = patch(oldVnode, newVnode());
-}
-
-
-function updateR(event) {
   mM1.ret([]);
   mM2.ret(0);
   mM3.ret(0);
@@ -272,15 +262,12 @@ function updateR(event) {
   mM16.ret(0);
   mM17.ret(0);
   mM18.ret(0);
-  mM19.ret(0);
-  mMZ1.ret(0);
-  mMZ2.ret(0);
-  oldVnode = patch(oldVnode, newVnode());
+  mM19.ret(0).bnd(update);
 }
 
 function updateSteps(event) {
-    mM1.ret(0).bnd(x => mM2.ret(x.x).bnd(() => mM3.ret(0)
-     .bnd(x => mM4.ret(x.x)
+    mM1.ret(0).bnd(x => mM2.ret(x).bnd(x => mM3.ret(x)
+     .bnd(x => mM4.ret(x)
      .bnd(() => mM1.ret('Click the mMZ2.release() button to proceed')
      .bnd(() => mMZ2.block()
      .bnd(() => mM2.ret('Click it again.')
@@ -289,7 +276,7 @@ function updateSteps(event) {
      .bnd(() => mMZ2.block()
      .bnd(() => mM4.ret('One more')
      .bnd(() => mMZ2.block()
-     .bnd(() => mM1.ret(0).bnd(x => mM2.ret(x.x).bnd(() => mM3.ret(0)
+     .bnd(() => mM1.ret(0).bnd(x => mM2.ret(x).bnd(() => mM3.ret(0)
      .bnd(() => mM4.ret(0))
       ))))))))))))));
   oldVnode = patch(oldVnode, newVnode());
@@ -450,7 +437,7 @@ var style1 = {backgroundColor: 'blue', textAlign: 'left', borderColor: 'lightblu
 
 var styleHide = {display: 'none'};
 
-var style3 = { marginTop: '40px', backgroundColor: '#000', height: '100%' , width: '100%', color: '#FFE4C4', fontSize: '18px', textAlign: 'left' };
+var style3 = { marginTop: '40px', backgroundColor: '#000', height: '100%' , width: '100%', color: '#FFE4C4', fontSize: '22px', textAlign: 'left' };
 
 var styleM = {color: '#FF000A', marginLeft: '13px', marginBottom: '2px', fontSize: '21px' };
 
