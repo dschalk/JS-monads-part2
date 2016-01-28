@@ -1,17 +1,18 @@
 'use strict';
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var Monad = function Monad(z,g) {
+var Monad = function Monad(z, g) {
   var _this = this;
 
   _classCallCheck(this, Monad);
 
   this.x = z;
-  if (arguments.length === 1) {this.id = 'anonymous'}
-  else {this.id = g}
+  if (arguments.length === 1) {
+    this.id = 'anonymous';
+  } else {
+    this.id = g;
+  }
 
   this.bnd = function (func) {
     for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -22,61 +23,41 @@ var Monad = function Monad(z,g) {
   };
 
   this.ret = function (a) {
-    var str = _this.id
-    if (str === 'anonymous') {return new Monad(a,'anonymous')};
-    eval(str + '= new Monad(a,' + "str" + ')'); 
+    var str = _this.id;
+    if (str === 'anonymous') {
+      return new Monad(a, 'anonymous');
+    };
+    eval(str + '= new Monad(a,' + "str" + ')');
     return window[_this.id];
-  };
-
-  this.fmap = function (f) {
-    for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-      args[_key2 - 2] = arguments[_key2];
-    }
-
-    var mon = arguments.length <= 1 || arguments[1] === undefined ? _this : arguments[1];
-
-    mon.ret(f.apply(undefined, [mon.x].concat(args)));
-    return mon;
   };
 };
 
 ;
 
-var MonadIter = function MonadIter(z, g) {
-  var _this2 = this;
+var MonadIter = function MonadIter() {
+  var _this = this;
 
   _classCallCheck(this, MonadIter);
 
-  this.x = z;
-  this.id = g;
   this.flag = false;
-  this.p = [];
+  this.p = function() {};
 
   this.block = function () {
-    _this2.flag = true;
-    return _this2;
+    _this.flag = true;
+    return _this;
   };
 
   this.release = function () {
-    var self = _this2;
-    var p = _this2.p;
-    p[1].apply(p, [self.x].concat(_toConsumableArray(p[2])));
-    self.flag = false;
-    return self;
+    _this.flag = false;
+    _this.p();
   };
 
   this.bnd = function (func) {
-    for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
-      args[_key3 - 1] = arguments[_key3];
+    if (_this.flag === false) {
+      func();
     }
-    var self = _this2;
-    if (self.flag === false) {
-      func.apply(undefined, [self.x].concat(args));
-      return self;
-    }
-    if (self.flag === true) {
-      self.p = [self.id, func, args];
-      return self;
+    if (_this.flag === true) {
+      _this.p = func;
     }
   };
 };
@@ -128,19 +109,19 @@ var mMgoals = M([]);
 var mMnbrs = M([]);
 var mMnumbers = M([]);
 
-var MI = function MI(a, b) {
-  return new MonadIter(a, b);
+var MI = function MI() {
+  return new MonadIter();
 };
 
-var mMZ1 = MI(false, 'mMZ1');
-var mMZ2 = MI(false, 'mMZ2');
-var mMZ3 = MI(false, 'mMZ3');
-var mMZ4 = MI(false, 'mMZ4');
-var mMZ5 = MI(false, 'mMZ5');
-var mMZ6 = MI(false, 'mMZ6');
-var mMZ7 = MI(false, 'mMZ7');
-var mMZ8 = MI(false, 'mMZ8');
-var mMZ9 = MI(false, 'mMZ9');
+var mMZ1 = MI();
+var mMZ2 = MI();
+var mMZ3 = MI();
+var mMZ4 = MI();
+var mMZ5 = MI();
+var mMZ6 = MI();
+var mMZ7 = MI();
+var mMZ8 = MI();
+var mMZ9 = MI();
 
 var toNums = function toNums(x) {
   let y = x.map(x => parseFloat(x));

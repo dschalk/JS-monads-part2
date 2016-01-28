@@ -1,9 +1,7 @@
 import snabbdom from 'snabbdom';
 import h from 'snabbdom/h';
 
-const monad = h('pre', {style: {color: '#AFEEEE' }}, 
-`
-  class Monad {
+const monad = h('pre', {style: {color: '#AFEEEE' }}, `  class Monad {
     constructor(z,g) {
 
       this.x = z;
@@ -11,7 +9,7 @@ const monad = h('pre', {style: {color: '#AFEEEE' }},
       else {this.id = g}
 
       this.bnd = (func, ...args) => {
-        func(this.x, ...args);
+        return func(this.x, ...args);
       };
 
       this.ret = a => {
@@ -20,22 +18,14 @@ const monad = h('pre', {style: {color: '#AFEEEE' }},
         eval(str + '= new Monad(a,' + "str" + ')'); 
         return window[this.id];
       };
-
-      this.fmap = (f, mon = this, ...args) => {      
-        mon.ret( f(mon.x, ...args));
-        return mon;
-
-      };
     }
   };
-  
-  class MonadIter {
-    constructor(z,g) {
 
-      this.x = z;
-      this.id = g;
+  class MonadIter {
+    constructor() {
+
       this.flag = false;
-      this.p = [];
+      this.p = undefined;
 
       this.block = () => {
         this.flag = true;
@@ -43,22 +33,43 @@ const monad = h('pre', {style: {color: '#AFEEEE' }},
         }
 
       this.release = () => {
-        let self = this;
-        let p = this.p;
-        p[1](self.x, ...p[2]);
-        self.flag = false;
-        return self;
+        this.flag = false;
+        this.p();
       }
  
-      this.bnd = (func, ...args) => {
-        let self = this;
-        if (self.flag === false) {
-          func(self.x, ...args);
-          return self;
+      this.bnd = func => {
+        if (this.flag === false) {
+          func();
         }
-        if (self.flag === true) {
-          self.p = [self.id, func, args];
-          return self;
+        if (this.flag === true) {
+          this.p = func;
+        }
+      }
+    }
+  }
+` );  
+  
+const monadIter = h('pre', {style: {color: '#AFEEEE' }}, `  class MonadIter {
+    constructor() {
+
+      this.flag = false;
+      this.p = undefined;
+
+      this.block = () => {
+        this.flag = true;
+      }
+
+      this.release = () => {
+        this.flag = false;
+        p();
+      }
+ 
+      this.bnd = func => {
+        if (this.flag === false) {
+          func();
+        }
+        if (this.flag === true) {
+          this.p = func;
         }
       }
     }
