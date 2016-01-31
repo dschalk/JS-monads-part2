@@ -14,7 +14,8 @@ function createWebSocket(path) {
 
 var socket = createWebSocket('/');
 
-var LoginName;
+var Name;
+var Group = 'solo';
 var xyz = 0;
 var numsA = [];
 var numsB = [];
@@ -23,10 +24,6 @@ var numsC = [];
 socket.onopen = function (event) {
     console.log('cow onopen ', event);
     update0();
-};
-
-var send = function(event) {
-      socket.send("CA#$42,solo," + LoginName +",6,6,12,20");
 };
 
 const patch = snabbdom.init([
@@ -38,7 +35,7 @@ const patch = snabbdom.init([
 https://github.com/paldepind/snabbdom 
 var oldVnode = document.getElementById('placeholder');
 
-function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17, m18, m19, mI1, mI2) { 
+function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, m16, m17, m18, m19) { 
     return h('div',{style: style3}, 
     [  h('div',{style: { width: '65%', textAlign: 'left', marginLeft: 40, marginRight: '17%', fontSize: '22px'}}, 
     [ h('h1', {style: {textAlign: 'center', color: '#ffba66'}}, 'JS-monads-part2'),
@@ -78,7 +75,8 @@ function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, 
             m17[4]   ),
       h('p', '  '  ),
 
-      h('button', {on: { mouseenter: update5e, mouseleave: update5l, click: function() {styleRoll2 = {display: 'none'}; send()} }, style: styleRoll},
+      h('button', {on: { mouseenter: update5e, mouseleave: update5l, 
+        click: function() {socket.send(`CA#$42,${Group},${Name},6,6,12,20`) } }, style: styleRoll },
                      `ROLL`   ),
       h('p', {style: styleRoll2}, 'Now click ROLL. '  ),
       h('p', 'When you click a number, it disappears. After two numbers and an operator have been selected, in any order, the test in updateCalc (below) is passed and a computation is performed. The result is placed at the end of the numbers display. Now there are three numbers. After another round, two are left and finally, the last computation can be performed. ',  ),
@@ -153,13 +151,6 @@ function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, 
           h('span', 'mM19.x: '),
           h('span', {style: styleM}, '  ' + m19),
           h('br'),
-          h('span', 'mMZ1.x: '),
-          h('span', {style: styleMI}, '  ' + mI1),
-          h('br'),
-          h('span', 'mMZ2.x: '),
-          h('span', {style: styleMI}, '  ' + mI2),
-          h('br'),
-          h('br'),
           h('br'),
           h('button', {on: { mouseenter: updateRe, mouseleave: updateRl, click: updateR }, style: styleR},
                      `RESET`   ),
@@ -172,7 +163,7 @@ function view(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15, 
 
 var newVnode  = () => {
   var newVnode = view(mM1.x, mM2.x, mM3.x, mM4.x, mM5.x, mM6.x, mM7.x, mM8.x, mM9.x,
-  mM10.x, mM11.x, mM12.x, mM13.x, mM14.x, mM15.x, mM16.x, mM17.x, mM18.x, mM19.x, mMZ1.x, mMZ2.x);
+  mM10.x, mM11.x, mM12.x, mM13.x, mM14.x, mM15.x, mM16.x, mM17.x, mM18.x, mM19.x);
   return newVnode;
 }
 
@@ -180,53 +171,66 @@ function update0() {
   oldVnode = patch(oldVnode, newVnode());
 }
 
+var displayOff = function displayOff(x,a) {
+    document.getElementById(a).style.display = 'none';
+    return ret(x);
+};
+
+var displayInline = function displayInline(x,a) {
+    document.getElementById(a).style.display = 'inline';
+    return ret(x);
+};
+
+var newRoll = function(v) {
+  socket.send(`CA#$42,${Group},${Name},6,6,12,20`);
+  return ret(v);
+};
+
+var score = function score(v,j) {
+  socket.send('CG#$42,' + Group + ',' + Name + ',' + j + ',' + 0);
+  return mM13.ret(v + j);
+}
+
 function updateCalc() {  
-  if ((mM8.x === 0) || (mM3.x.length !== 2)) {return};
-  ret('temp').bnd(() => (
-      ( mMZ2.block()
+  ret('start').bnd(() => (
+      ( mMZ2.bnd(() => mM13
+                    .bnd(score,1)
                     .bnd(() => mM14
-                    .ret('Score: ' + (mM13.x + 1))
-                    .bnd(() => mM13
-                    .ret(mM13.x + 1)
-                    .bnd(() => send()))) ),
-      ( mMZ4.block()
+                    .ret('Score: ' + (mM13.x))
+                    .bnd(newRoll))) ),
+      ( mMZ4.bnd(() => mM13
+                    .bnd(score,3)
                     .bnd(() => mM14
-                    .ret('Score: ' + (mM13.x + 3))
-                    .bnd(() => mM13
-                    .ret(mM13.x + 3)
-                    .bnd(() => send()))) ),
-       (mM3
-                    .bnd(toFloat)
-                    .bnd((x => mM3.ret(x)
-                    .bnd(() => mM7      
-                    .ret(calc(mM3.x[0], mM8.x, mM3.x[1]))
-                    .bnd(x => mM1.bnd(push, x)
-                    .bnd(clean)
-                    .bnd(x => mM1.ret(x)
-                    .bnd(next, (mM7.x == 18), mMZ4)
-                    .bnd(next, (mM7.x == 20), mMZ2) 
-                    .bnd(displayOff, x.length)
+                    .ret('Score: ' + (mM13.x))
+                    .bnd(newRoll))) ),
+      (mM3.bnd(x => mM7
+                    .ret(calc(x[0], mM8.x, x[1]))
+                    .bnd(next, 18, mMZ4)
+                    .bnd(next, 20, mMZ2) 
+                    .bnd(() => mM1.bnd(push,mM7.x)
+                    .bnd(mM1.ret)
+                    .bnd(displayOff, ((mM1.x.length)+''))
                     .bnd(() => mM3
                     .ret([])
                     .bnd(() => mM4
                     .ret(0).bnd(mM8.ret)
                     .bnd(() => mM5.ret('Done')
-                    .bnd(update)   )))))))) )
-  )) 
+                    .bnd(update) ))))) ) 
+  ))     
 }
 
 function updateNums(e) {
     mM3
-    .bnd(push,e.target.textContent)
-    .bnd(() => {mM1.x[e.target.value] = ""; return ret('temp');})
-    .bnd(update)
-    updateCalc();
+    .bnd(push,e.target.textContent);
+    mM1.x[e.target.value] = "";
+    update0();
+    if (mM3.x.length === 2 && mM8.x !== 0) {updateCalc();}
 }
 
 function updateOp(e) {
-       console.log('updateOp: mMZ1.p, mMZ2.p, mMZ4.p ', mMZ1.p, mMZ2.p, mMZ4.p);
-  mM8.ret(e.target.textContent);
-  updateCalc();
+    mM8.ret(e.target.textContent)
+    .bnd(update)
+    if (mM3.x.length === 2 && mM8.x !== 0) {updateCalc();}
 }
 
 function updateLogin(e) {
@@ -236,7 +240,7 @@ function updateLogin(e) {
      } 
      if( e.keyCode == 13 ) {
        socket.send("CC#$42" + v);
-       LoginName = v;
+       Name = v;
        inputStyle1 = inputStyleB;
        mM3.ret([]).bnd(mM2.ret);
        update0();
@@ -269,13 +273,13 @@ function updateSteps(event) {
     mM1.ret(0).bnd(x => mM2.ret(x).bnd(x => mM3.ret(x)
      .bnd(x => mM4.ret(x)
      .bnd(() => mM1.ret('Click the mMZ2.release() button to proceed')
-     .bnd(() => mMZ2.block()
+     .bnd(() => mMZ2
      .bnd(() => mM2.ret('Click it again.')
-     .bnd(() => mMZ2.block()
+     .bnd(() => mMZ2
      .bnd(() => mM3.ret('Keep going')
-     .bnd(() => mMZ2.block()
+     .bnd(() => mMZ2
      .bnd(() => mM4.ret('One more')
-     .bnd(() => mMZ2.block()
+     .bnd(() => mMZ2
      .bnd(() => mM1.ret(0).bnd(x => mM2.ret(x).bnd(() => mM3.ret(0)
      .bnd(() => mM4.ret(0))
       ))))))))))))));
@@ -325,7 +329,6 @@ socket.onmessage = function(event) {
           case "CC#$42":                         // Not broadcast. Login message.
             if (extra === '%#8*&&^1#$%^')  {
               mM6.ret('Name taken');
-              //that.setState({info: `You entered a name which is already taken`})
               setTimeout( function () {
                 document.location.reload(false);
               },2000);
@@ -347,12 +350,11 @@ socket.onmessage = function(event) {
               mM1.ret([extra,  ext4,  ext5,  ext6]);
               mM17.ret(['add', 'subtract', 'mult', 'div', 'concat']); 
               mM3.ret([]);
-              mM8.ret(0);
-              mM6.bnd(displayInline,1);
-              mM6.bnd(displayInline,2);
-              mM6.bnd(displayInline,3);
-              // var senderScore = sender + "\u2019s score: " + mM13.x;
-              // mM14.ret(senderScore);
+              mM8.ret(0)
+              .bnd(displayInline,'0')
+              .bnd(displayInline,'1')
+              .bnd(displayInline,'2')
+              .bnd(displayInline,'3')
               update0();
           break;
 
