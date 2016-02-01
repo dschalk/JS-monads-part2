@@ -2,6 +2,7 @@ import snabbdom from 'snabbdom';
 import h from 'snabbdom/h';
 
 const monad = h('pre', {style: {color: '#AFEEEE' }}, `  class Monad {
+    var _this = this;
     constructor(z,g) {
 
       this.x = z;
@@ -9,29 +10,28 @@ const monad = h('pre', {style: {color: '#AFEEEE' }}, `  class Monad {
       else {this.id = g}
 
       this.bnd = (func, ...args) => {
-        return func(this.x, ...args);
+        return func(_this.x, ...args);
       };
 
       this.ret = a => {
-        var str = this.id
-        if (str === 'anonymous') {return new Monad(a,'anonymous')};
-        eval(str + '= new Monad(a,' + "str" + ')'); 
-        return window[this.id];
+        _this.x = a;
+        return _this;
       };
     }
   };
 
   class MonadIter {
+    var _this = this;
     constructor() {
 
       this.p = function() {};
 
       this.release = () => {
-        return this.p();
+        return _this.p();
       }
  
       this.bnd = func => {
-          this.p = func;
+          _this.p = func;
       }
     }
   }
@@ -96,7 +96,7 @@ const dice = h('pre', {style: {color: '#AFEEEE' }},
                       .ret([])
                       .bnd(() => mM4
                       .ret(0).bnd(mM8.ret)
-                      .bnd(update) ))))) ) 
+                      .bnd(update) )))) ) 
     ))     
   }
   
