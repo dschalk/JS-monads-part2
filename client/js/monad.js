@@ -26,8 +26,6 @@ var MonadIter = function MonadIter() {
 var Monad = function Monad(z, g) {
   var _this = this;
 
-  _classCallCheck(this, Monad);
-
   this.x = z;
   if (arguments.length === 1) {
     this.id = 'anonymous';
@@ -39,20 +37,20 @@ var Monad = function Monad(z, g) {
     for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];
     }
+
     return func.apply(undefined, [_this.x].concat(args));
   };
 
   this.ret = function (a) {
-    _this.x = a;
-    return _this;
+    window[_this.id] = new Monad(a, _this.id);
+    return window[_this.id];
   };
 };
 
 ;
 
 var ret = function ret(v) {
-  var mon = new Monad(v, 'anonymous');
-  return mon;
+  return new Monad(v, 'anonymous');
 }
 
 var cube = function(v) {

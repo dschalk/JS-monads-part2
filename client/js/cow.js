@@ -1,24 +1,25 @@
 import snabbdom from 'snabbdom';
 import h from 'snabbdom/h';
 
-const monad = h('pre', {style: {color: '#AFEEEE' }}, `  class Monad {
+const monad = h('pre', {style: {color: '#AFEEEE' }}, `  var Monad = function Monad(z, g) {
     var _this = this;
-    constructor(z,g) {
 
-      this.x = z;
-      if (arguments.length === 1) {this.id = 'anonymous'}
-      else {this.id = g}
+    this.x = z;
+    if (arguments.length === 1) {
+      this.id = 'anonymous';
+    } else {
+      this.id = g;
+    };
 
-      this.bnd = (func, ...args) => {
-        return func(_this.x, ...args);
-      };
+    this.bnd = function (func, ...args) {
+       return func(_this.x, ...args);
+    };
 
-      this.ret = a => {
-        _this.x = a;
-        return _this;
-      };
-    }
-  };
+    this.ret = function (a) {
+      window[_this.id] = new Monad(a, _this.id);
+      return window[_this.id]
+    };
+  };               
 
   class MonadIter {
     var _this = this;
